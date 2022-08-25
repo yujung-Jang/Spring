@@ -2,27 +2,36 @@ package com.codestates.member;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/v1/members")
+@Validated
 public class MemberController {
+    //회원 정보 등록
     @PostMapping
-    public ResponseEntity postMember(@RequestParam("email") String email,
-                             @RequestParam("name") String name,
-                             @RequestParam("phone") String phone) {
+    public ResponseEntity postMember(@Valid @RequestBody MemberPostDto memberPostDto) {
 
-        Map<String, String> map = new HashMap<>();
-        map.put("email", email);
-        map.put("name", name);
-        map.put("phone", phone);
-
-        return new ResponseEntity<>(map, HttpStatus.CREATED);
+        return new ResponseEntity<>(memberPostDto, HttpStatus.CREATED);
     }
 
+    //회원 정보 수정
+    @PatchMapping("/{member-id}")
+    public ResponseEntity patchMember(@PathVariable("member-id") @Min(1) long memberId,
+                                      @Valid @RequestBody MemberPatchDto memberPatchDto) {
+
+        memberPatchDto.setMemberId(memberId);
+
+        //No need Business logic
+
+        return new ResponseEntity<>(memberPatchDto, HttpStatus.OK);
+    }
+
+    //한 명의 회원 정보 조회
     @GetMapping("/{member-id}")
     public ResponseEntity getMember(@PathVariable("member-id") long memberId) {
         System.out.println("# memberId: " + memberId);
@@ -31,11 +40,20 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    //모든 회원 정보 조회
     @GetMapping
     public ResponseEntity getMembers() {
         System.out.println("# get Members");
 
         //not implementation
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    //회원 정보 삭제
+    @DeleteMapping("{member-id}")
+    public ResponseEntity deleteMember(@PathVariable("member-id") long memberId) {
+        //No need business logic
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
